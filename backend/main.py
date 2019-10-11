@@ -23,12 +23,14 @@ async def create_app():  # Start the app
     })
 
     # Get a connection pool to the database.
-    conn = await asyncpg.connect(
+    conn = await asyncpg.create_pool(
         database=os.environ.get('DATABASE_NAME', 'ready-flight'),
         host=os.environ.get('DATABASE_HOST', '10.4.190.238'),
         port=os.environ.get('DATABASE_PORT', 1000),
         user=os.environ.get('DATABASE_USER', 'admin'),
         password=os.environ.get('DATABASE_PASSWORD', 'admin'),
+        min_size=1,
+        max_size=10
     )
     app_["db"] = conn
 
