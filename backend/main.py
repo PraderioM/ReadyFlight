@@ -5,6 +5,10 @@ from aiohttp import web
 import aiohttp_cors
 import asyncpg
 
+from backend.logging.login import login
+from backend.logging.logout import logout
+from backend.logging.register import register
+
 
 async def create_app():  # Start the app
     app_ = web.Application()
@@ -29,8 +33,9 @@ async def create_app():  # Start the app
     app_["db"] = conn
 
     # Register handlers.
-    # app_.router.add_get('/get_jobs', get_jobs)
-    # app_.router.add_get('/get_summary', get_summary)
+    app_.router.add_get('/login', login)
+    app_.router.add_get('/logout', logout)
+    app_.router.add_get('/register', register)
 
     # Configure CORS on all routes (deactivate it).
     for route in list(app_.router.routes()):
