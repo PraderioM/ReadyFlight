@@ -96,7 +96,7 @@ export class StateService {
     async changeLanguage(language: string) {
       this.http
         .get(this.urlPath + '/change_language',
-          {params: new HttpParams().set('token', this.currentState.token)})
+          {params: new HttpParams().set('token', this.currentState.token).set('language', language)})
         .toPromise();
     }
 
@@ -144,7 +144,7 @@ export class StateService {
     async getScores(name: string, password: string, language: string) {
       const token = this.currentState.token;
       return await this.http
-        .get<Score[]>(this.urlPath + '/register',
+        .get<Score[]>(this.urlPath + '/get_scores',
           {params: new HttpParams().set('token', token)})
         .toPromise();
     }

@@ -8,6 +8,10 @@ import asyncpg
 from backend.logging.login import login
 from backend.logging.logout import logout
 from backend.logging.register import register
+from backend.logging.change_language import change_language
+from backend.game.update_game import update_game
+from backend.game.start_game import start_game
+from backend.scores.get_score import get_scores
 
 
 async def create_app():  # Start the app
@@ -38,6 +42,12 @@ async def create_app():  # Start the app
     app_.router.add_get('/login', login)
     app_.router.add_get('/logout', logout)
     app_.router.add_get('/register', register)
+    app_.router.add_get('/change_language', change_language)
+
+    app_.router.add_get('/update_game', update_game)
+    app_.router.add_get('/start_game', start_game)
+
+    app_.router.add_get('/get_scores', get_scores)
 
     # Configure CORS on all routes (deactivate it).
     for route in list(app_.router.routes()):
