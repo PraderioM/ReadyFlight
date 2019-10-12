@@ -1,0 +1,26 @@
+<ul style="text-align:center">
+  <li style="text-align:center" class="data-container">
+    <input type="text" placeholder="name"
+           class="small-input"
+           [ngClass]="{'failed': registerFailed}"
+           #inputName>
+    <input type="password" placeholder="password"
+           class="small-input"
+           [ngClass]="{'failed': registerFailed}"
+           #inputPassword>
+    <input type="password" placeholder="confirm password"
+           class="small-input"
+           [ngClass]="{'failed': registerFailed}"
+           #inputConfirmPassword>
+    <select class="custom-select" #inputLanguage>
+      <option *ngFor="let language of possibleLanguages"
+              value="{{language}}">{{language}}</option>
+    </select>
+    <button (click)="tryRegister(inputName.value, inputPassword.value, inputConfirmPassword.value, inputLanguage.selectedIndex)">
+      register
+    </button>
+    <button (click)="goBack()">
+      back
+    </button>
+  </li>
+</ul>

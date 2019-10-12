@@ -1,0 +1,15 @@
+.data-container {
+  display: flex;
+  flex-direction: row;
+  flex-flow: wrap;
+  justify-content: space-around;
+  align-content: center;
+}
+
+.failed {
+  background-color: #FF000044;
+}
+
+.small-input {
+  width: 40%;
+}

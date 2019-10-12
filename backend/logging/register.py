@@ -1,46 +1,54 @@
 import json
+from uuid import uuid4
+
 from aiohttp import web
 import asyncpg
-import random
 
 
 async def register(request):
     """Add User and Password"""
-    body = await request.json()
+    name = request.rel_url.query['name']
+    password = request.rel_url.query['password']
+    language = request.rel_url.query['language']
 
-    db: asyncpg.Connection = request.app['db']
-    async with db.transaction():
-        user_password = await db.fetchrow("""
-                                     SELECT password AS password
-                                     FROM  users
-                                     WHERE name=$1
-                                     """, body['name'])
+    pool = request.app['db']
+    async with pool.acquire() as db:
+        db: asyncpg.Connection = db
+        async with db.transaction():
+            user_password = await db.fetchrow("""
+                                         SELECT password AS password
+                                         FROM  users
+                                         WHERE name=$1
+                                         """, name)
 
-        # If the user password doesn't exist return None.
-        if user_password is None:
-            # Generate token.
-            rand_gen = random.SystemRandom()
-            token = ''.join(rand_gen.choice('0123456789abcdef') for _ in range(64))
+            # If the user password doesn't exist return None.
+            if user_password is None:
+                # Generate token.
+                token = uuid4()
 
-            # Insert the user and password  and token in the database.
-            await db.execute("""INSERT INTO users (name, password, token, language)
-                                VALUES ($1, $2,$,$4)
-                                """, body['name'], body['password'],token, body['language'])
+                # Insert the user and password  and token in the database.
+                await db.execute("""INSERT INTO users (name, password, token, language)
+                                    VALUES ($1, $2, $3,$4)
+                                    """, name, password, token, language)
 
-            return web.Response(status=200, body=json.dumps({'token': token}))
+                token = str(token)
+                message = 'Everything is awesome'
 
-        else:
-            if body['language'] is 'English':
+            else:
+                token = None
                 message = 'This User already exists'
-            elif body['language'] is 'Español':
-                 message = 'El usuario ya existe'
-            elif body['language'] is 'Català':
-                 message = 'Usuari ja existent'
-            return web.Response(status=401,
+                if language is 'English':
+                    message = 'This User already exists'
+                elif language is 'Español':
+                    message = 'El usuario ya existe'
+                elif language is 'Català':
+                    message = 'Usuari ja existent'
+
+            return web.Response(status=200,
                                 body=json.dumps(
                                     {
-                                        'token': None,
-                                        'exitStatus': message
+                                        'token': token,
+                                        'message': message
                                     }
                                 )
                                 )

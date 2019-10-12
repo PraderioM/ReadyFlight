@@ -9,9 +9,9 @@ def authenticate(original_function):
     """
 
     async def f(request):
-        token = request.headers['Authorization'][7:]
+        body = await request.json()
 
-        if not token:
+        if 'token' not in body.keys():
             return web.Response(status=401)
 
         async with request.app['db'].acquire() as db:
@@ -19,7 +19,7 @@ def authenticate(original_function):
                                             SELECT name AS name
                                             FROM users
                                             WHERE token=$1
-                                            """, token)
+                                            """, body['token'])
 
             try:
                 if user_token is not None:

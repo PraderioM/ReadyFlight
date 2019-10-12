@@ -1,0 +1,17 @@
+<ul style="text-align:center">
+  <li style="text-align:center" class="data-container">  <button (click)="play()">
+    play
+  </button>
+  <button (click)="scores()">
+    scores
+  </button>
+
+    <select class="custom-select" (change)="changeLanguage($event.target.value)">
+      <option *ngFor="let language of possibleLanguages"
+              value="{{language}}">{{language}}</option>
+    </select>
+  <button (click)="logOut()">
+    logout
+  </button>
+  </li>
+</ul>

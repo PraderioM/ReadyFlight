@@ -1,0 +1,2 @@
+<app-login (login)="logIn($event)" (register)="goToRegistering()" *ngIf="!registering"></app-login>
+<app-register (registered)="logIn($event)" (back)="goToLogin()" *ngIf="registering"></app-register>

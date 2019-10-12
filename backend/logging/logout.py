@@ -2,19 +2,20 @@ from aiohttp import web
 
 import asyncpg
 
-from backend.authenticate import authenticate
 
-
-@authenticate
-async def logout(worker: str, request):
+async def logout(request):
     """Removes the given token from the database"""
     # Set the token to null.
-    db: asyncpg.Connection = request.app['db']
-    async with db.transaction():
-        await db.execute("""
-                         UPDATE users
-                         SET token=NULL
-                         WHERE name=$1
-                         """, worker)
+    token = request.rel_url.query['token']
 
-        return web.Response(status=200)
+    pool = request.app['db']
+    async with pool.acquire() as db:
+        db: asyncpg.Connection = db
+        async with db.transaction():
+            await db.execute("""
+                             UPDATE users
+                             SET token=NULL
+                             WHERE token=$1
+                             """, token)
+
+            return web.Response(status=200)
