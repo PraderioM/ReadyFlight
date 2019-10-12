@@ -1,0 +1,15 @@
+.vertical-data-container {
+  display: flex;
+  flex-direction: column;
+  flex-flow: wrap;
+  justify-content: space-around;
+  align-content: center;
+}
+
+.btn-container {
+  display: flex;
+  flex-direction: column;
+  flex-flow: wrap;
+  justify-content: space-around;
+  align-content: center;
+}

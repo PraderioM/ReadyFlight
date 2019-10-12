@@ -1,0 +1,62 @@
+.btn-container {
+  display: flex;
+  flex-direction: row;
+  flex-flow: wrap;
+  justify-content: space-around;
+  align-content: center;
+  width: 950pt;
+  height: 30pt;
+}
+
+.text-container {
+  display: flex;
+  flex-direction: row;
+  flex-flow: wrap;
+  justify-content: space-around;
+  align-content: center;
+  width: 950pt;
+  height: 30pt;
+}
+
+.progress-container {
+  display: flex;
+  flex-direction: row;
+  flex-flow: wrap;
+  justify-content: space-around;
+  align-content: center;
+  width: 1200pt;
+  height: 30pt;
+}
+
+.vertical-data-container {
+   display: flex;
+   flex-direction: column;
+   flex-flow: wrap;
+   justify-content: center;
+   align-content: center;
+ }
+
+.game-area {
+  display: flex;
+  justify-content: center;
+  width: 1000pt;
+  height: 600pt;
+}
+
+.race-canvas {
+  border-style: solid;
+  width: 100pt;
+  height: 600pt;
+}
+
+.main-canvas {
+  border-style: solid;
+  width: 850pt;
+  height: 600pt;
+}
+
+.progress-canvas {
+  border-style: solid;
+  width: 955pt;
+  height: 20pt;
+}

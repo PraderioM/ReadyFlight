@@ -13,25 +13,49 @@ export class HomeComponent {
   @Output() loggedOut = new EventEmitter<void>();
   @Input() token: string;
   private possibleLanguages = new ConfigService().possibleLanguages;
+  private showMultiPlayer = false;
+  private showSinglePlayer = false;
+  private showLoading = false;
+  private showLeaderBoard = false;
+
+  hideAll() {
+    this.showMultiPlayer = false;
+    this.showSinglePlayer = false;
+    this.showLoading = false;
+    this.showLeaderBoard = false;
+  }
 
   constructor(private stateService: StateService) {  }
 
-  async play() {
-    // Todo implement.
+  async multiPlayer() {
+    // Show loading component while looking for a game.
+    this.hideAll();
+    this.showLoading = true;
+
+    // Look for a game.
     await this.stateService.setToken(this.token);
-    console.log('You are playing congrats.');
+    await this.stateService.enterGame();
+
+    // Show game once game is found.
+    this.hideAll();
+    this.showMultiPlayer = true;
+  }
+
+  async singlePlayer() {
+    // Enter single player name.
+    this.hideAll();
+    this.showSinglePlayer = true;
   }
 
   async scores() {
-    // Todo implement.
-    await this.stateService.setToken(this.token);
-    console.log('This are the scores.');
+    // Show leader board and hide everything else.
+    this.hideAll();
+    this.showLeaderBoard = true;
   }
 
   async changeLanguage(language: string) {
     await this.stateService.setToken(this.token);
-    this.stateService.changeLanguage(language);
-    // Todo implement.
+    await this.stateService.changeLanguage(language);
     console.log('Language changed.');
   }
 
@@ -40,4 +64,10 @@ export class HomeComponent {
     await this.stateService.setToken(this.token);
     this.stateService.logout();
   }
+
+  // This function is used for coming back from scores or game.
+  onBackToMenu() {
+    this.hideAll();
+  }
+
 }

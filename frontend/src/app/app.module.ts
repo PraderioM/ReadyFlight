@@ -7,6 +7,9 @@ import {LoginComponent} from './registering/login/login.component';
 import {RegisterComponent} from './registering/register/register.component';
 import {HomeComponent} from './home/home.component';
 import {HttpClientModule} from '@angular/common/http';
+import {LeaderboardComponent} from './home/leaderboard/leaderboard.component';
+import {GameComponent} from './home/game/game.component';
+import {LoadingComponent} from './home/loading/loading.component';
 
 @NgModule({
   declarations: [
@@ -14,7 +17,10 @@ import {HttpClientModule} from '@angular/common/http';
     RegisteringComponent,
     LoginComponent,
     RegisterComponent,
-    HomeComponent
+    HomeComponent,
+    LeaderboardComponent,
+    GameComponent,
+    LoadingComponent
   ],
   imports: [
     BrowserModule,

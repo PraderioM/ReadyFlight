@@ -1,4 +1,4 @@
-.data-container {
+.vertical-data-container {
   display: flex;
   flex-direction: row;
   flex-flow: wrap;

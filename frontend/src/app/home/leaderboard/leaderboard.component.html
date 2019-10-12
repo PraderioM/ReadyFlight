@@ -1,0 +1,29 @@
+<ul style="text-align:center" class="vertical-data-container">
+  <li style="text-align:center" class="horizontal-data-container">
+    <label>
+      Ranking
+    </label>
+    <label>
+      Name
+    </label>
+    <label>
+      Score
+    </label>
+  </li>
+
+  <li style="text-align:center" *ngFor="let score of scoreList; let i = index" class="horizontal-data-container">
+    <label>
+      {{i}}
+    </label>
+    <label>
+      {{score.name}}
+    </label>
+    <label>
+      {{score.score}}
+    </label>
+  </li>
+</ul>
+<div style="text-align:center" class="horizontal-data-container">
+  <button (click)="back()"> Back </button>
+</div>
+

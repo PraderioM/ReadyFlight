@@ -14,7 +14,7 @@ export interface GameState {
     playsAfflicted: string[];
 }
 
-class EndGame {
+export class EndGame {
   public end: boolean;
   public won?: boolean;
   public error?: boolean;
@@ -33,7 +33,7 @@ class LoginResponse {
   public message: string;
 }
 
-class Score {
+export class Score {
   name: string;
   score: number;
 }
@@ -134,19 +134,52 @@ export class StateService {
 
       this.currentState.opponentPosition = response.position;
       this.currentState.playsAfflicted.concat(response.newPlaysAfflicted);
-      this.currentState.playsAfflicted.concat(response.newPlaysToReceive);
+      this.currentState.playsToReceive.concat(response.newPlaysToReceive);
 
       return response.endGame;
     }
     // endregion.
 
-    // region scores.
-    async getScores(name: string, password: string, language: string) {
+    // region leaderboard.
+    async getScores() {
       const token = this.currentState.token;
       return await this.http
         .get<Score[]>(this.urlPath + '/get_scores',
           {params: new HttpParams().set('token', token)})
         .toPromise();
     }
-    // endregion.
+
+  getPosition() {
+    return this.currentState.position;
+  }
+
+  getOpponentPosition() {
+    return this.currentState.opponentPosition;
+  }
+
+  setPosition(pos: number) {
+    this.currentState.position = pos;
+  }
+
+  addPlayToSend(play: string) {
+      this.currentState.playsToSend.push(play);
+  }
+
+  addPlaySuffered(play: string) {
+      this.currentState.playsSuffered.push(play);
+  }
+
+  getPlaysAfflicted() {
+    const ret = this.currentState.playsAfflicted;
+    this.currentState.playsAfflicted = [];
+    return ret;
+  }
+
+  getPlaysToReceive() {
+    const ret = this.currentState.playsToReceive;
+    this.currentState.playsToReceive = [];
+    return ret;
+  }
+
+  // endregion.
 }
