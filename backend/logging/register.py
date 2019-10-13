@@ -48,7 +48,7 @@ async def register(request):
                                 body=json.dumps(
                                     {
                                         'token': token,
-                                        'message': message
+                                        'errorMessage': message
                                     }
                                 )
                                 )

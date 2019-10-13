@@ -2,7 +2,7 @@
 <app-game (backToMenu)="onBackToMenu()" [singlePlayer]="false" [token]="token" *ngIf="showMultiPlayer"></app-game>
 <app-game (backToMenu)="onBackToMenu()" [singlePlayer]="true" [token]="token" *ngIf="showSinglePlayer"></app-game>
 <app-leaderboard (backToMenu)="onBackToMenu()" [token]="token" *ngIf="showLeaderBoard"></app-leaderboard>
-<ul style="text-align:center" *ngIf="!showLeaderBoard && !showMultiPlayer && !showLoading && !showSinglePlayer">
+<ul style="text-align:center" class="data-container" *ngIf="!showLeaderBoard && !showMultiPlayer && !showLoading && !showSinglePlayer">
   <li style="text-align:center" class="data-container">
     <button (click)="singlePlayer()">
       single player

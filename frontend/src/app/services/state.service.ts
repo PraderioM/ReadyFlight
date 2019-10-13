@@ -2,6 +2,7 @@ import {Observable, Subject} from 'rxjs';
 import {Injectable} from '@angular/core';
 // import {Sequence} from '../models/models';
 import {HttpClient, HttpParams} from '@angular/common/http';
+import {stringify} from 'querystring';
 
 
 export interface GameState {
@@ -30,12 +31,13 @@ class GameResponse {
 
 class LoginResponse {
   public token?: string;
-  public message: string;
+  public errorMessage: string;
 }
 
 export class Score {
   name: string;
   score: number;
+  singlePlayerScore: number;
 }
 
 @Injectable()
@@ -64,8 +66,10 @@ export class StateService {
           {params: new HttpParams().set('name', name).set('password', password)})
         .toPromise();
 
+      console.log(response);
+
       this.currentState.token = response.token;
-      return response.message;
+      return response.errorMessage;
     }
 
     async logout() {
@@ -90,7 +94,7 @@ export class StateService {
       console.log(response);
 
       this.currentState.token = response.token;
-      return response.message;
+      return response.errorMessage;
     }
 
     async changeLanguage(language: string) {
@@ -133,8 +137,8 @@ export class StateService {
         }).toPromise();
 
       this.currentState.opponentPosition = response.position;
-      this.currentState.playsAfflicted.concat(response.newPlaysAfflicted);
-      this.currentState.playsToReceive.concat(response.newPlaysToReceive);
+      this.currentState.playsAfflicted = this.currentState.playsAfflicted.concat(response.newPlaysAfflicted);
+      this.currentState.playsToReceive = this.currentState.playsToReceive.concat(response.newPlaysToReceive);
 
       return response.endGame;
     }
@@ -146,6 +150,15 @@ export class StateService {
       return await this.http
         .get<Score[]>(this.urlPath + '/get_scores',
           {params: new HttpParams().set('token', token)})
+        .toPromise();
+    }
+
+
+    async updateMaxScore(newScore: number) {
+      const token = this.currentState.token;
+      return await this.http
+        .get<Score[]>(this.urlPath + '/update_max_score',
+          {params: new HttpParams().set('token', token).set('score', newScore.toString())})
         .toPromise();
     }
 
@@ -169,15 +182,19 @@ export class StateService {
       this.currentState.playsSuffered.push(play);
   }
 
-  getPlaysAfflicted() {
+  getPlaysAfflicted(clear: boolean = false) {
     const ret = this.currentState.playsAfflicted;
-    this.currentState.playsAfflicted = [];
+    if (clear) {
+      this.currentState.playsAfflicted = [];
+    }
     return ret;
   }
 
-  getPlaysToReceive() {
+  getPlaysToReceive(clear: boolean = false) {
     const ret = this.currentState.playsToReceive;
-    this.currentState.playsToReceive = [];
+    if (clear) {
+      this.currentState.playsToReceive = [];
+    }
     return ret;
   }
 

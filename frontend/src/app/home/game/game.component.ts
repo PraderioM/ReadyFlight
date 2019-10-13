@@ -1,8 +1,8 @@
 import {Component, EventEmitter, Input, OnInit, OnDestroy, Output, ViewChild, ElementRef, NgZone, HostListener} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {EndGame, StateService} from '../../services/state.service';
-import {stringify} from 'querystring';
 import {isUndefined} from 'util';
+import {isNotNullOrUndefined} from 'codelyzer/util/isNotNullOrUndefined';
 
 
 export class PoliceMan {
@@ -28,7 +28,6 @@ export class PoliceMan {
     let vx = 0;
     if (this.y > this.ctx.canvas.height / 2) {
       vx = Math.round(Math.random() * this.maxSpeed);
-      // console.log('x speed', vx);
       if (!this.left) {
         vx = -vx;
       }
@@ -61,11 +60,11 @@ export class PoliceMan {
 export class Baby {
   private x = 0;
   private babyColor = '#ff9999';
-  private backgroundColor = 'white';
+  private backgroundColor = '#ffffff';
   private textFont = '30px Arial';
-  private cryColor = '';
+  private cryColor = '#000000';
   private height = 30;
-  public z = 20;
+  public z = 10;
 
   constructor(private ctx: CanvasRenderingContext2D, private y = 0) { }
 
@@ -78,15 +77,22 @@ export class Baby {
     // Draw baby.
     this.ctx.fillStyle = this.babyColor;
     this.ctx.fillRect(this.x, this.y, this.z, this.z);
+    this.ctx.fillStyle = '#5555ff';  // eyes.
+    this.ctx.fillRect(2 * this.x / 10, 2 * this.y / 10, this.z / 10, this.z / 10);
+    this.ctx.fillRect(8 * this.x / 10, 2 * this.y / 10, this.z / 10, this.z / 10);
+    this.ctx.fillRect(8 * this.x / 10, 3 * this.y / 10, this.z / 10, this.z / 10);
 
     // Draw cry panel.
     this.ctx.fillStyle = this.backgroundColor;
     this.ctx.fillRect(this.z, this.y - this.height, this.ctx.canvas.width - this.z, this.height);
+    this.ctx.beginPath();
+    this.ctx.rect(this.z, this.y - this.height, this.ctx.canvas.width - this.z, this.height);
+    this.ctx.stroke();
 
     // Draw cry text
     this.ctx.font = this.textFont;
     this.ctx.fillStyle = this.cryColor;
-    this.ctx.fillText('Baby crying', this.ctx.canvas.width / 3, this.y - this.height);
+    this.ctx.fillText('Baby crying', this.ctx.canvas.width / 3, this.y);
   }
 
   isOutsideCanvas() {
@@ -135,7 +141,7 @@ export class Player {
   public vx = 2;
   private color = 'black';
   private killingMoeColor = '#888888';
-  private killingMoeIncrease = 1.1;
+  private killingMoeIncrease = 1.2;
 
   constructor(private ctx: CanvasRenderingContext2D, public z = 20) {
     this.y = this.ctx.canvas.height - z;
@@ -145,6 +151,8 @@ export class Player {
   move(vx: number, vy: number = 0) {
     this.x += vx;
     this.y += vy;
+    this.x = Math.min(Math.max(0, this.x), this.ctx.canvas.width);
+    this.y = Math.min(Math.max(0, this.y), this.ctx.canvas.height);
   }
 
   draw(killingMoe: boolean = false) {
@@ -153,7 +161,7 @@ export class Player {
       this.ctx.fillStyle = this.killingMoeColor;
       const offset = this.z * (1 - this.killingMoeIncrease) / 2;
       const scale = this.z * this.killingMoeIncrease;
-      this.ctx.fillRect(this.x - offset, this.y - offset, scale, scale);
+      this.ctx.fillRect(this.x + offset, this.y + offset, scale, scale);
     }
 
     this.ctx.fillStyle = this.color;
@@ -166,7 +174,7 @@ export enum KEY_CODE {
   RIGHT_ARROW = 39,
   LEFT_ARROW = 37,
   A = 65,
-  B = 66,
+  D = 68,
 }
 
 
@@ -188,7 +196,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   possiblePlays: string[] = ['Bomb', 'Suitcase', 'Pee', 'Baby', 'KillMoe'];
   probReceivingPossiblePlay: number[] = [0.1, 0.2, 0.03, 0.05, 0.1];
-  availablePlays: string[];
+  availablePlays: string[] = [];
   started = false;
 
   textX = 100;
@@ -203,17 +211,18 @@ export class GameComponent implements OnInit, OnDestroy {
 
   position = 0;
   speed = 0.001;
-  movingSpeed = 2;
-  boostSpeedMultiplier = 1.5;
-  boostSpeedMultiplierDuration = 20;
+  movingSpeed = 5;
+  movingSpeedIncrease = 0.01;
+  boostSpeedMultiplier = 2;
+  boostSpeedMultiplierDuration = 30;
   boostSpeedMultiplierRemaining = 0;
   peeingRemaining = 0 ;
   maxPeeingDuration = 15;
 
 
-  progress = this.singlePlayer ? 1 : 0;
-  progressSpeed = 0.05;
-  damage = 0.01;
+  progress = this.singlePlayer ? 0 : 1;
+  progressSpeed = 0.04;
+  damage = 0.05;
 
   mainCtx: CanvasRenderingContext2D;
   sideCtx: CanvasRenderingContext2D;
@@ -224,17 +233,20 @@ export class GameComponent implements OnInit, OnDestroy {
 
   player: Player;
   policeMans: PoliceMan[] = [];
-  policeManProb = 0.01;
-  policeManProbSpeed = 0.01;
+  policeManProb = 0.05;
+  policeManProbSpeed = this.singlePlayer ? 0.1 : 1e-6;
   endGameState = new EndGame();
 
   babies: Baby[] = [];
-  babiesProb = 0.1;
-  babiesProbSpeed = 0.1;
+  babiesProb = 0.005;
+  babiesProbSpeed = this.singlePlayer ? 0.01 : 1e-6;
 
   suitcases: Suitcase[] = [];
   suitcasesProb = 0.1;
-  suitcasesProbSpeed = 0.1;
+  suitcasesProbSpeed = this.singlePlayer ? 0.1 : 1e-6;
+
+  killMoeProb = 0.05;
+  killMoeProbSpeed = 0;
 
   @HostListener('window:keydown', ['$event'])
   keyEvent(event: KeyboardEvent) {
@@ -253,7 +265,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.stateService.addPlayToSend(this.availablePlays[0]);
         this.availablePlays.splice(0, 1);
       }
-    } else if (event.which === KEY_CODE.B) {
+    } else if (event.which === KEY_CODE.D) {
       if (this.availablePlays.length > 0) {
         if (this.availablePlays[0] === 'Bomb') {
           this.policeManProb -= this.policeManProbSpeed;
@@ -264,6 +276,11 @@ export class GameComponent implements OnInit, OnDestroy {
         } else if (this.availablePlays[0] === 'Baby') {
           this.babiesProb -= this.babiesProbSpeed;
           this.availablePlays.splice(0, 1);
+        } else if (this.availablePlays[0] === 'KillMoe') {
+          if (this.boostSpeedMultiplierRemaining === 0) {
+            this.boostSpeedMultiplierRemaining += this.boostSpeedMultiplierDuration;
+            this.availablePlays.splice(0, 1);
+          }
         }
       }
     }
@@ -273,6 +290,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Init state service to enable communication with backend.
+    this.stateService.setPosition(this.position);
     this.stateService.setToken(this.token);
 
     // Init canvas context.
@@ -294,7 +312,7 @@ export class GameComponent implements OnInit, OnDestroy {
   start() {
     this.started = true;
     this.ngZone.runOutsideAngular(() => this.updateMainCanvas());
-    setInterval(() => {
+    this.interval = setInterval(() => {
       this.updateMainCanvas();
     }, 200);
   }
@@ -344,6 +362,13 @@ export class GameComponent implements OnInit, OnDestroy {
       // Clear everything.
       this.mainCtx.clearRect(0, 0, this.mainCtx.canvas.width, this.mainCtx.canvas.height);
 
+      // Set moving speed.
+      let movingSpeed = this.movingSpeed;
+      if (this.boostSpeedMultiplierRemaining > 0) {
+        movingSpeed *= this.boostSpeedMultiplier;
+        this.boostSpeedMultiplierRemaining -= 1;
+      }
+
       // Draw and check if a crush has taken place.
       // Draw suitcases.
       let i = 0;
@@ -352,10 +377,10 @@ export class GameComponent implements OnInit, OnDestroy {
         if (this.suitcases[i].isOutsideCanvas()) {
           this.suitcases.splice(i, 1);
         } else {
-          this.suitcases[i].move(this.movingSpeed);
+          this.suitcases[i].move(movingSpeed);
           const collided = this.hasCollided(this.suitcases[i].x, this.suitcases[i].y, this.suitcases[i].width, this.suitcases[i].height);
-          nCollisions = collided ? nCollisions + 1 : nCollisions;
           if (collided) {
+            nCollisions ++;
             this.suitcases.splice(i, 1);
           } else {
             i++;
@@ -375,10 +400,10 @@ export class GameComponent implements OnInit, OnDestroy {
         if (this.policeMans[i].isOutsideCanvas()) {
           this.policeMans.splice(i, 1);
         } else {
-          this.policeMans[i].move(this.movingSpeed);
+          this.policeMans[i].move(movingSpeed);
           const collided = this.hasCollided(this.policeMans[i].x, this.policeMans[i].y, this.policeMans[i].z, this.policeMans[i].z);
-          newCollisions = collided ? nCollisions + 1 : nCollisions;
           if (collided) {
+            newCollisions ++;
             this.policeMans.splice(i, 1);
           } else {
             i++;
@@ -397,7 +422,7 @@ export class GameComponent implements OnInit, OnDestroy {
         if (this.babies[i].isOutsideCanvas()) {
           this.babies.splice(i, 1);
         } else {
-          this.babies[i].move(this.movingSpeed);
+          this.babies[i].move(movingSpeed);
           i++;
         }
       }
@@ -423,28 +448,36 @@ export class GameComponent implements OnInit, OnDestroy {
         this.babies.push(new Baby(this.mainCtx));
       }
 
+      // Check if Moe should be killed.
+      if (this.singlePlayer) {
+        if (this.boostSpeedMultiplierRemaining === 0 && random < this.killMoeProb) {
+          this.boostSpeedMultiplierRemaining += this.boostSpeedMultiplierDuration;
+        }
+      }
+
       // Update values differently depending on mode.
       this.progress = Math.max(0, this.progress - nCollisions * this.damage);
       if (this.singlePlayer) {  // Single player.
         if (this.boostSpeedMultiplierRemaining > 0) {
           this.position += this.speed * this.boostSpeedMultiplier;
-          this.boostSpeedMultiplierRemaining -= 1;
         } else {
           this.position += this.speed;
         }
-        this.showMessage = stringify(Math.round(this.position * 500));
+        this.showMessage = 'Score: ' + Math.round(this.position * 500).toString();
         if (this.progress === 0) {
           this.showFinalScore();
           return;
         }
       } else {  // Multi player.
-        this.progress = Math.min(this.progress + this.progressSpeed);
+        this.progress = Math.min(this.progress + this.progressSpeed, 1);
         if (nCollisions === 0) {
           this.position += this.speed;
+        } else {
+          this.position -= this.speed;
         }
 
         // Add new available action to list of actions
-        if (this.progress === 1 && this.singlePlayer) {
+        if (this.progress === 1 && !this.singlePlayer) {
           this.addNewPlay();
           this.progress = 0;
         }
@@ -462,17 +495,18 @@ export class GameComponent implements OnInit, OnDestroy {
       this.babiesProb += this.babiesProbSpeed;
       this.policeManProb += this.policeManProbSpeed;
       this.suitcasesProb += this.suitcasesProbSpeed;
+      this.killMoeProb += this.killMoeProbSpeed;
     } else { // Probabilities in multiple players mode are computed differently according to rival.
       this.stateService.updateGameState().then( res => {
         this.endGameState = res;
       });
       this.updateSideCanvas();
-    }
 
-    // Draw available plays in single player mode.
-    if (!this.singlePlayer) {
+    // Draw available plays in multi player mode.
       this.drawAvailablePlays();
     }
+
+    this.movingSpeed += this.movingSpeedIncrease;
 
 
     // Restart animation.
@@ -497,8 +531,8 @@ export class GameComponent implements OnInit, OnDestroy {
         this.availablePlays.splice(i, 1);
         continue;
       }
-      this.mainCtx.rect(this.mainCtx.canvas.width - (i + 1) * size, 0, size, size);
-
+      this.mainCtx.fillStyle = color;
+      this.mainCtx.fillRect(this.mainCtx.canvas.width - (i + 1) * size, 0, size, size);
     }
 
   }
@@ -541,7 +575,11 @@ export class GameComponent implements OnInit, OnDestroy {
     this.mainCtx.clearRect(0, 0, this.mainCtx.canvas.width, this.mainCtx.canvas.height);
     this.mainCtx.font = this.textFont;
     this.mainCtx.fillStyle = this.textColor;
-    this.mainCtx.fillText(stringify(Math.round(this.position * 500)), this.textX, this.textY);
+    this.mainCtx.fillText(Math.round(this.position * 500).toString(), this.textX, this.textY);
+    this.stateService.updateMaxScore(this.position * 500);
+    if (isNotNullOrUndefined(this.interval)) {
+      clearInterval(this.interval);
+    }
   }
 
   back() {
@@ -549,25 +587,28 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    clearInterval(this.interval);
+    if (isNotNullOrUndefined(this.interval)) {
+      clearInterval(this.interval);
+    }
     cancelAnimationFrame(this.animationId);
   }
 
   private updateSideCanvas() {
     this.sideCtx.clearRect(0, 0, this.sideCtx.canvas.width, this.sideCtx.canvas.height);
     this.sideCtx.fillStyle = 'black';
-    this.sideCtx.rect(this.sideCtx.canvas.width / 2, (1 - this.stateService.getPosition()) * this.sideCtx.canvas.height,
+    this.sideCtx.fillRect(this.sideCtx.canvas.width / 2, (1 - this.stateService.getPosition()) * this.sideCtx.canvas.height,
       this.sideCtx.canvas.width / 2, this.stateService.getPosition() * this.sideCtx.canvas.height);
+
     this.sideCtx.fillStyle = 'red';
-    this.sideCtx.rect(0, (1 - this.stateService.getOpponentPosition()) * this.sideCtx.canvas.height,
+    this.sideCtx.fillRect(0, (1 - this.stateService.getOpponentPosition()) * this.sideCtx.canvas.height,
       this.sideCtx.canvas.width / 2, this.stateService.getOpponentPosition() * this.sideCtx.canvas.height);
   }
 
   private updateProbsFromStateService() {
-    this.showPlaysAfflicted(this.stateService.getPlaysAfflicted());
+    this.showPlaysAfflicted(this.stateService.getPlaysAfflicted(true));
 
     // Update probs.
-    for (const play of this.stateService.getPlaysToReceive()) {
+    for (const play of this.stateService.getPlaysToReceive(true)) {
       if (play === 'Bomb') {
         this.policeManProb += this.policeManProbSpeed;
       } else if (play === 'Suitcase') {
@@ -583,6 +624,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   async showPlaysAfflicted(plays: string[]) {
+    console.log('afflicted plays', plays);
     if (plays.length > 0) {
       this.showMessage = plays[0];
       setTimeout(function() {
@@ -603,6 +645,9 @@ export class GameComponent implements OnInit, OnDestroy {
       alert('Congratulations, you have won THE GAME.');
     } else {
       alert('I\'m sorry YOU LOST that flight with no refund.');
+    }
+    if (isNotNullOrUndefined(this.interval)) {
+      clearInterval(this.interval);
     }
   }
 }

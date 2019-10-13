@@ -1,7 +1,8 @@
-.vertical-data-container {
+.data-container {
   display: flex;
   flex-direction: row;
   flex-flow: wrap;
   justify-content: space-around;
   align-content: center;
+  width: 80%
 }

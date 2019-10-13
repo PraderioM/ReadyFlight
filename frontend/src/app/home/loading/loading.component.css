@@ -1,7 +1,15 @@
-.vertical-data-container {
+.parent-data-container {
   display: flex;
   flex-direction: row;
   flex-flow: wrap;
   justify-content: space-around;
   align-content: center;
 }
+
+.data-container {
+   display: flex;
+   flex-direction: row;
+   flex-flow: wrap;
+   justify-content: space-around;
+   align-content: center;
+ }

@@ -13,13 +13,14 @@ export class LoadingComponent {
   private char = '.';
   private loadingMessageList: string[] = [];
   private index = 0;
-  private maxIndex = 50;
+  private maxIndex = 5;
   private showMessage: string;
 
   constructor() {
     // Create loading messages.
     for (let i = 0; i < this.maxIndex; i++) {
-      let newLoadingMessage = '.';
+      let newLoadingMessage = 'Loading';
+      this.showMessage = newLoadingMessage;
       for (let j = 0; j < i; j++) {
         newLoadingMessage = newLoadingMessage + this.char;
       }
@@ -27,7 +28,7 @@ export class LoadingComponent {
     }
 
     // Initialize show message and start loop for viewing it as changing.
-    setTimeout(this.updateShowMessage, 1500);
+    setInterval(this.updateShowMessage.bind(this), 1500);
   }
 
   // Increase index of showed message.

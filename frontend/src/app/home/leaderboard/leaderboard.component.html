@@ -1,25 +1,31 @@
 <ul style="text-align:center" class="vertical-data-container">
   <li style="text-align:center" class="horizontal-data-container">
-    <label>
+    <label class="uniform-label">
       Ranking
     </label>
-    <label>
+    <label class="uniform-label">
       Name
     </label>
-    <label>
+    <label class="uniform-label">
       Score
+    </label>
+    <label class="uniform-label">
+      Single player score
     </label>
   </li>
 
   <li style="text-align:center" *ngFor="let score of scoreList; let i = index" class="horizontal-data-container">
-    <label>
+    <label class="uniform-label">
       {{i}}
     </label>
-    <label>
+    <label class="uniform-label">
       {{score.name}}
     </label>
-    <label>
+    <label class="uniform-label">
       {{score.score}}
+    </label>
+    <label class="uniform-label">
+      {{score.singlePlayerScore}}
     </label>
   </li>
 </ul>
