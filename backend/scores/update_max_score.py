@@ -15,12 +15,13 @@ async def update_max_score(request):
                                           FROM users
                                           WHERE token = $1
                                           """, token)
-        score = max(score, existing_score)
+        if existing_score is not None:
+            score = max(score, existing_score)
 
-        await db.execute("""
-                         UPDATE users
-                         SET single_player_score = $1
-                         WHERE token = $2
-                         """, score, token)
+            await db.execute("""
+                             UPDATE users
+                             SET single_player_score = $1
+                             WHERE token = $2
+                             """, score, token)
 
     return web.Response(status=200)

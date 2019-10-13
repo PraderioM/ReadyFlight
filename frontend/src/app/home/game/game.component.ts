@@ -15,16 +15,14 @@ export class PoliceMan {
   private zHat = 7;
 
   constructor(private ctx: CanvasRenderingContext2D, public y = 0, private img) {
-    this.left = Math.random() < 0.5;
-
     this.x = Math.round(Math.random() * (this.ctx.canvas.width - this.z));
   }
 
-  move(vy: number) {
+  move(vy: number, targetX: number) {
     let vx = 0;
     if (this.y > this.ctx.canvas.height / 2) {
       vx = Math.round(Math.random() * this.maxSpeed);
-      if (!this.left) {
+      if (targetX < this.x) {
         vx = -vx;
       }
 
@@ -61,7 +59,7 @@ export class Baby {
   private textFont = '30px Arial';
   private cryColor = '#000000';
   private height = 40;
-  public z = 10;
+  public z = 20;
 
   constructor(private ctx: CanvasRenderingContext2D, private y = 0, private img) { }
 
@@ -149,7 +147,7 @@ export class Player {
   move(vx: number, vy: number = 0) {
     this.x += vx;
     this.y += vy;
-    this.x = Math.min(Math.max(0, this.x), this.ctx.canvas.width);
+    this.x = Math.min(Math.max(0, this.x), this.ctx.canvas.width - this.z);
     this.y = Math.min(Math.max(0, this.y), this.ctx.canvas.height);
   }
 
@@ -208,7 +206,7 @@ export class GameComponent implements OnInit, OnDestroy {
   showMessage = '';
 
   position = 0;
-  speed = 0.001;
+  speed = 0.004;
   movingSpeed = 5;
   movingSpeedIncrease = 0.01;
   boostSpeedMultiplier = 2;
@@ -351,8 +349,9 @@ export class GameComponent implements OnInit, OnDestroy {
       // Went to pee.
       this.mainCtx.font = this.textFont;
       this.mainCtx.fillStyle = 'black';
-      this.mainCtx.fillText('Went to pee.', 0, 0);
-      this.mainCtx.fillText('Couldn\'t pass bottle.', 0, this.mainCtx.canvas.height / 4);
+      this.mainCtx.fillText('Went to pee.', 0, this.mainCtx.canvas.height / 4);
+      this.mainCtx.fillText('Had to drink whole', 0, this.mainCtx.canvas.height / 2);
+      this.mainCtx.fillText('in passport control.', 0, 3 * this.mainCtx.canvas.height / 4);
     } else {
       // Check if game has ended.
       if (!this.singlePlayer) {
@@ -404,7 +403,7 @@ export class GameComponent implements OnInit, OnDestroy {
         if (this.policeMans[i].isOutsideCanvas()) {
           this.policeMans.splice(i, 1);
         } else {
-          this.policeMans[i].move(movingSpeed);
+          this.policeMans[i].move(movingSpeed, this.player.x);
           const collided = this.hasCollided(this.policeMans[i].x, this.policeMans[i].y, this.policeMans[i].z, this.policeMans[i].z);
           if (collided) {
             newCollisions ++;

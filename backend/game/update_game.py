@@ -135,23 +135,37 @@ async def remove_game_from_database(db: asyncpg.Connection, game_id: str, name: 
                              UPDATE users
                              SET score = score + $1
                              WHERE name = $2
-                             """, 1, min_name)
-            await db.execute("""
-                             UPDATE users
-                             SET score = max(0, score - $1)
-                             WHERE name = $2
-                             """, 0.5, max_name)
+                             """, 1., min_name)
+            score = await db.fetchval("""
+                                      SELECT score
+                                      FROM users
+                                      WHERE name = $1
+                                      """, max_name)
+            if score is not None:
+                score = max(0, score - 0.5)
+                await db.execute("""
+                                 UPDATE users
+                                 SET score = $1
+                                 WHERE name = $2
+                                 """, score, max_name)
         else:
-            await db.execute("""
-                             UPDATE users
-                             SET score = max(0, score - $1)
-                             WHERE name = $2
-                             """, 1, min_name)
             await db.execute("""
                              UPDATE users
                              SET score = score + $1
                              WHERE name = $2
-                             """, 1, max_name)
+                             """, 1., max_name)
+            score = await db.fetchval("""
+                             SELECT score
+                             FROM users
+                             WHERE name = $1
+                             """, min_name)
+            if score is not None:
+                score = max(0, score - 0.5)
+                await db.execute("""
+                                 UPDATE users
+                                 SET score = $1
+                                 WHERE name = $2
+                                 """, score, min_name)
 
     # Remove game from database.
     await db.execute("""

@@ -19,22 +19,41 @@ async def start_game(request):
                                          FROM  users
                                          WHERE token=$1
                                          """, token)
-        if queue1.empty() is True:
-            game_id = uuid4()
 
-            queue1.put_nowait(game_id)
+        while True:
+            original_game_id = uuid4()
+            if queue1.empty() is True:
+                ACTIVE_GAMES[str(original_game_id)] = Game(None, None, Player(datetime.now(),
+                                                                              position=0,
+                                                                              name=player_name))
 
-            ACTIVE_GAMES[str(game_id)] = Game(None, None, None)
-            game_id = await queue2.get()
-            game = ACTIVE_GAMES[str(game_id)]
-            game.player_2 = Player(last_update_time=datetime.now(), position=0, name=player_name)
-        else:
-            game_id = await queue1.get()
-            await queue2.put(game_id)
+                game_id = original_game_id
+                queue1.put_nowait(original_game_id)
+                game_id = await queue2.get()
 
-            game: Game = ACTIVE_GAMES[str(game_id)]
-            game.game_start_time = datetime.now()
-            game.player_1 = Player(last_update_time=datetime.now(), position=0, name=player_name)
+                game = ACTIVE_GAMES[str(game_id)]
+                game.player_2 = Player(last_update_time=datetime.now(), position=0, name=player_name)
+
+                # This could happen due to a sudden disconnection.
+                if game.player_1.name == player_name:
+                    ACTIVE_GAMES.pop(str(game_id))
+                    continue
+                else:
+                    break
+            else:
+                game_id = await queue1.get()
+                await queue2.put(game_id)
+
+                game: Game = ACTIVE_GAMES[str(game_id)]
+                game.game_start_time = datetime.now()
+                game.player_1 = Player(last_update_time=datetime.now(), position=0, name=player_name)
+
+                # This could happen due to a sudden disconnection.
+                if game.player_2.name == player_name:
+                    ACTIVE_GAMES.pop(str(game_id))
+                    continue
+                else:
+                    break
 
         await db.execute("""
                             UPDATE users
