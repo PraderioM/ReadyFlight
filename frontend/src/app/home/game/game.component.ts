@@ -8,20 +8,16 @@ import {isNotNullOrUndefined} from 'codelyzer/util/isNotNullOrUndefined';
 export class PoliceMan {
   private readonly left: boolean;
   public x;
-  private maxSpeed = 20;
+  private maxSpeed = 30;
   private hatColor = 'black';
   private bodyColor = 'blue';
   public z = 20;
   private zHat = 7;
 
-  constructor(private ctx: CanvasRenderingContext2D, public y = 0) {
+  constructor(private ctx: CanvasRenderingContext2D, public y = 0, private img) {
     this.left = Math.random() < 0.5;
 
-    if (this.left) {
-      this.x = 0;
-    } else {
-      this.x = this.ctx.canvas.width - this.z;
-    }
+    this.x = Math.round(Math.random() * (this.ctx.canvas.width - this.z));
   }
 
   move(vy: number) {
@@ -39,17 +35,18 @@ export class PoliceMan {
   }
 
   private draw() {
-    if (this.left) {
-      this.ctx.fillStyle = this.bodyColor;
-      this.ctx.fillRect(this.x, this.y, this.z - this.zHat, this.z);
-      this.ctx.fillStyle = this.hatColor;
-      this.ctx.fillRect(this.x + this.z - this.zHat, this.y, this.zHat, this.z);
-    } else {
-      this.ctx.fillStyle = this.bodyColor;
-      this.ctx.fillRect(this.x + this.zHat, this.y, this.z - this.zHat, this.z);
-      this.ctx.fillStyle = this.hatColor;
-      this.ctx.fillRect(this.x, this.y, this.zHat, this.z);
-    }
+    // if (this.left) {
+    //   this.ctx.fillStyle = this.bodyColor;
+    //   this.ctx.fillRect(this.x, this.y, this.z - this.zHat, this.z);
+    //   this.ctx.fillStyle = this.hatColor;
+    //   this.ctx.fillRect(this.x + this.z - this.zHat, this.y, this.zHat, this.z);
+    // } else {
+    //   this.ctx.fillStyle = this.bodyColor;
+    //   this.ctx.fillRect(this.x + this.zHat, this.y, this.z - this.zHat, this.z);
+    //   this.ctx.fillStyle = this.hatColor;
+    //   this.ctx.fillRect(this.x, this.y, this.zHat, this.z);
+    // }
+    this.ctx.drawImage(this.img, this.x, this.y, this.z, this.z);
   }
 
   isOutsideCanvas() {
@@ -63,10 +60,10 @@ export class Baby {
   private backgroundColor = '#ffffff';
   private textFont = '30px Arial';
   private cryColor = '#000000';
-  private height = 30;
+  private height = 40;
   public z = 10;
 
-  constructor(private ctx: CanvasRenderingContext2D, private y = 0) { }
+  constructor(private ctx: CanvasRenderingContext2D, private y = 0, private img) { }
 
   move(vy: number) {
     this.y += vy;
@@ -75,12 +72,13 @@ export class Baby {
 
   private draw() {
     // Draw baby.
-    this.ctx.fillStyle = this.babyColor;
-    this.ctx.fillRect(this.x, this.y, this.z, this.z);
-    this.ctx.fillStyle = '#5555ff';  // eyes.
-    this.ctx.fillRect(2 * this.x / 10, 2 * this.y / 10, this.z / 10, this.z / 10);
-    this.ctx.fillRect(8 * this.x / 10, 2 * this.y / 10, this.z / 10, this.z / 10);
-    this.ctx.fillRect(8 * this.x / 10, 3 * this.y / 10, this.z / 10, this.z / 10);
+    this.ctx.drawImage(this.img, this.x, this.y, this.z, this.z);
+    // this.ctx.fillStyle = this.babyColor;
+    // this.ctx.fillRect(this.x, this.y, this.z, this.z);
+    // this.ctx.fillStyle = '#5555ff';  // eyes.
+    // this.ctx.fillRect(2 * this.x / 10, 2 * this.y / 10, this.z / 10, this.z / 10);
+    // this.ctx.fillRect(8 * this.x / 10, 2 * this.y / 10, this.z / 10, this.z / 10);
+    // this.ctx.fillRect(8 * this.x / 10, 3 * this.y / 10, this.z / 10, this.z / 10);
 
     // Draw cry panel.
     this.ctx.fillStyle = this.backgroundColor;
@@ -92,7 +90,7 @@ export class Baby {
     // Draw cry text
     this.ctx.font = this.textFont;
     this.ctx.fillStyle = this.cryColor;
-    this.ctx.fillText('Baby crying', this.ctx.canvas.width / 3, this.y);
+    this.ctx.fillText('Baby crying', this.ctx.canvas.width / 3, this.y - 10);
   }
 
   isOutsideCanvas() {
@@ -231,6 +229,9 @@ export class GameComponent implements OnInit, OnDestroy {
   animationId;
   interval;
 
+  policeImage = new Image();
+  babyImage = new Image();
+
   player: Player;
   policeMans: PoliceMan[] = [];
   policeManProb = 0.05;
@@ -286,7 +287,10 @@ export class GameComponent implements OnInit, OnDestroy {
     }
   }
 
-  constructor(private stateService: StateService, private ngZone: NgZone) {  }
+  constructor(private stateService: StateService, private ngZone: NgZone) {
+    this.policeImage.src = '/assets/bigun.png';
+    this.babyImage.src = '/assets/stewie.png';
+  }
 
   ngOnInit() {
     // Init state service to enable communication with backend.
@@ -347,8 +351,8 @@ export class GameComponent implements OnInit, OnDestroy {
       // Went to pee.
       this.mainCtx.font = this.textFont;
       this.mainCtx.fillStyle = 'black';
-      this.mainCtx.fillText('Went to pee.', this.mainCtx.canvas.width / 3, 0);
-      this.mainCtx.fillText('Couldn\'t pass bottle.', this.mainCtx.canvas.width / 3, this.mainCtx.canvas.height / 4);
+      this.mainCtx.fillText('Went to pee.', 0, 0);
+      this.mainCtx.fillText('Couldn\'t pass bottle.', 0, this.mainCtx.canvas.height / 4);
     } else {
       // Check if game has ended.
       if (!this.singlePlayer) {
@@ -439,13 +443,13 @@ export class GameComponent implements OnInit, OnDestroy {
       // Add new police mans.
       random = Math.random();
       if (random < this.policeManProb) {
-        this.policeMans.push(new PoliceMan(this.mainCtx));
+        this.policeMans.push(new PoliceMan(this.mainCtx, 0, this.policeImage));
       }
 
       // Add new babies.
       random = Math.random();
       if (random < this.babiesProb) {
-        this.babies.push(new Baby(this.mainCtx));
+        this.babies.push(new Baby(this.mainCtx, 0, this.babyImage));
       }
 
       // Check if Moe should be killed.

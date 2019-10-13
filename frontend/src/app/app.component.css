@@ -1,0 +1,47 @@
+.bg-1{
+  width: 100%;
+  height: 690pt;
+  background: url('/assets/backgrounds/bg_1.jpeg') no-repeat center;
+  background-size: 100% 100%;
+  background-position: top center;
+}
+
+.bg-2{
+  width: 100%;
+  height: 690pt;
+  background: url('/assets/backgrounds/bg_2.jpeg') no-repeat center;
+  background-size: 100% 100%;
+  background-position: top center;
+}
+
+.bg-3{
+  width: 100%;
+  height: 690pt;
+  background: url('/assets/backgrounds/bg_3.jpeg') no-repeat center;
+  background-size: 100% 100%;
+  background-position: top center;
+}
+
+.bg-4{
+  width: 100%;
+  height: 690pt;
+  background: url('/assets/backgrounds/bg_4.jpeg') no-repeat center;
+  background-size: 100% 100%;
+  background-position: top center;
+}
+
+.bg-5{
+  width: 100%;
+  height: 690pt;
+  background: url('/assets/backgrounds/bg_5.jpeg') no-repeat center;
+  background-size: 100% 100%;
+  background-position: top center;
+}
+
+.bg-6{
+  width: 100%;
+  height: 690pt;
+  background: url('/assets/backgrounds/bg_6.jpeg') no-repeat center;
+  background-size: 100% 100%;
+  background-position: top center;
+}
