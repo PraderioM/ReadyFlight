@@ -101,7 +101,7 @@ export class Baby {
 
 export class Suitcase {
   public x;
-  private maxW = 20;
+  private maxW = 60;
   private maxH = 20;
   private minW = 5;
   private minH = 5;
