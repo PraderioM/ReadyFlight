@@ -4,7 +4,7 @@ from datetime import datetime
 import asyncpg
 
 from backend.global_variables import queue1, queue2, ACTIVE_GAMES
-from game.models import Game, Player
+from backend.game.models import Game, Player
 
 
 async def start_game(request):

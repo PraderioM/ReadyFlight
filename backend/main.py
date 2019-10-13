@@ -28,9 +28,10 @@ async def create_app():  # Start the app
     })
 
     # Get a connection pool to the database.
+    print('creating web app.')
     conn = await asyncpg.create_pool(
         database=os.environ.get('DATABASE_NAME', 'ready-flight'),
-        host=os.environ.get('DATABASE_HOST', '10.4.190.238'),
+        host=os.environ.get('DATABASE_HOST', '0.0.0.0'),
         port=os.environ.get('DATABASE_PORT', 1000),
         user=os.environ.get('DATABASE_USER', 'admin'),
         password=os.environ.get('DATABASE_PASSWORD', 'admin'),

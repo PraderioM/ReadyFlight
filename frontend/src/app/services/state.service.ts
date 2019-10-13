@@ -36,8 +36,8 @@ class LoginResponse {
 
 export class Score {
   name: string;
-  score: number;
-  singlePlayerScore: number;
+  score: string;
+  singlePlayerScore: string;
 }
 
 @Injectable()

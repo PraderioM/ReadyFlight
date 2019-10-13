@@ -7,6 +7,10 @@ class Score:
     def to_json(self):
         return {
             'name': self._name,
-            'score': self._score,
-            'singlePlayerScore': self._max_time,
+            'score': f'{self._score:.2f}',
+            'singlePlayerScore': f'{int(self._max_time):d}',
         }
+
+    @property
+    def score(self) -> float:
+        return self._score

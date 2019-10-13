@@ -15,8 +15,9 @@ async def get_scores(request):
                                   ORDER BY score ASC
                                   """)
 
-    sorted_scores: List[Score] = []
+    scores_list: List[Score] = []
     for res in res_list:
-        sorted_scores.append(Score(name=res['name'], score=res['score'], max_time=res['single_player_score']))
+        scores_list.append(Score(name=res['name'], score=res['score'], max_time=res['single_player_score']))
+    scores_list.sort(key=lambda s: s.score, reverse=True)
 
-    return web.Response(status=200, body=json.dumps([score.to_json() for score in sorted_scores]))
+    return web.Response(status=200, body=json.dumps([score.to_json() for score in scores_list]))
