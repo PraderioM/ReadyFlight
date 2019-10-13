@@ -4,10 +4,14 @@ from aiohttp import web
 async def update_max_score(request):
     token = request.rel_url.query['token']
     score = request.rel_url.query['score']
+    print(request)
+    print(score)
     if score == '':
         score = 0
     else:
         score = float(score)
+
+    print(score)
 
     async with request.app['db'].acquire() as db:
         await db.execute("""

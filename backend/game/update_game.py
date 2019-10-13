@@ -21,12 +21,12 @@ async def update_game(request):
         db: asyncpg.Connection = db
         async with db.transaction():
             result = await db.fetchrow("""
-                                         SELECT game AS game,
-                                                name AS name,
-                                                language AS language
-                                         FROM  users
-                                         where token=$1
-                                         """, token)
+                                       SELECT game AS game,
+                                              name AS name,
+                                              language AS language
+                                       FROM  users
+                                       where token=$1
+                                       """, token)
             game_id = result['game']
             name = result['name']
             language = result['language']

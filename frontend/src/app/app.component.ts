@@ -10,13 +10,15 @@ import {ConfigService} from './services/config.service';
   providers: [StateService, HttpClient, ConfigService]
 })
 export class AppComponent implements OnInit, OnDestroy {
-  title = 'ready-flight';
   token?: string;
   loggedIn = false;
 
   bgIndex = 0;
   nBackgrounds = 6;
   interval;
+
+  buttonText = 'Hide background';
+  viewBackground = true;
 
   logIn(token: string) {
     this.token = token;
@@ -40,5 +42,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     clearInterval(this.interval);
+  }
+
+  changeBackgroundVisibility() {
+    if (this.viewBackground) {
+      this.viewBackground = false;
+      this.buttonText = 'Show background';
+    } else {
+      this.viewBackground = true;
+      this.buttonText = 'Hide background';
+    }
   }
 }

@@ -1,10 +1,11 @@
-<div [ngClass]="{'bg-1': bgIndex == 0,
-'bg-2': bgIndex == 1,
-'bg-3': bgIndex == 2,
-'bg-4': bgIndex == 3,
-'bg-5': bgIndex == 4,
-'bg-6': bgIndex == 5
+<div [ngClass]="{'bg-1': bgIndex == 0 && viewBackground,
+'bg-2': bgIndex == 1 && viewBackground,
+'bg-3': bgIndex == 2 && viewBackground,
+'bg-4': bgIndex == 3 && viewBackground,
+'bg-5': bgIndex == 4 && viewBackground,
+'bg-6': bgIndex == 5 && viewBackground
 }">
 <app-home (loggedOut)="logOut()" [token]="token" *ngIf="loggedIn"></app-home>
 <app-registering (loggedIn)="logIn($event)" *ngIf="!loggedIn"></app-registering>
 </div>
+<button (click)="changeBackgroundVisibility()">{{buttonText}}</button>
