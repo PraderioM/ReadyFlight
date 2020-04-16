@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import {NgModule, OnDestroy, OnInit} from '@angular/core';
+import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import {RegisteringComponent} from './registering/registering.component';
